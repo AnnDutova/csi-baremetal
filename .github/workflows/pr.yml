@@ -2,7 +2,6 @@ name: PR validation
 
 on:
   push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 env:
@@ -10,6 +9,7 @@ env:
   golangci_version: '1.37.0'
 jobs:
   lint-test:
+    if: "contains(github.event.head_commit.message, '[lint-test]')"
     name: Validate code and charts
     runs-on: ubuntu-18.04
     steps:
@@ -58,34 +58,36 @@ jobs:
     
     - name: Coverage
       run: make coverage
-
-    - name: Upload coverage report to artifacts
-      uses: actions/upload-artifact@v2.2.1
-      with:
-        name: coverage.html
-        path: ./coverage.html
-
-    - name: Upload coverage report to codecov
-      uses: codecov/codecov-action@v1.0.2
-      continue-on-error: true  # added here as workaround for codecov-action on validation of PR from forked repo
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.out
-        flags: unittests
       
     - name: Build binaries
       run: |
         make DRIVE_MANAGER_TYPE=basemgr build
         make DRIVE_MANAGER_TYPE=loopbackmgr build-drivemgr
         make DRIVE_MANAGER_TYPE=idracmgr build-drivemgr
+    - uses: helm/kind-action@v1.1.0
+      with:
+        version: "v0.8.1"
+        wait: "1s" # not wasting time here
 
+    - name: Get kind cluster information
+      run: |
+          kubectl cluster-info
+          kubectl get pods --all-namespaces
+          echo "current-context:" $(kubectl config current-context)
+          echo "environment-kubeconfig:" ${KUBECONFIG}
     - name: Test sanity
       run: |
+        helm install csi-baremetal-operator ./charts/csi-baremetal-operator
+        helm install csi-baremetal-driver ./charts/csi-baremetal-driver
+        helm install csi-baremetal-scheduler-extender ./charts/csi-baremetal-scheduler-extender
+        helm install csi-baremetal-scheduler ./charts/csi-baremetal-scheduler
         make test-sanity
+        kubectl get pods --all-namespaces
         
   gen-files-validate:
+    if: "contains(github.event.head_commit.message, '[gen]')"
     name: Generated files should be consistent
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -102,7 +104,6 @@ jobs:
       run: |
         make install-controller-gen
         make generate-deepcopy
-
     - name: Verify Changed files
       uses: tj-actions/verify-changed-files@v5.5
       id: changed_files
@@ -121,3 +122,35 @@ jobs:
       if: steps.changed_files.outputs.files_changed == 'true'
       run: |
         exit 1
+# try
+  build:
+    runs-on: ubuntu-20.04
+    if: "contains(github.event.head_commit.message, '[build]')"
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Load dep cache
+      uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: go-dep-${{ env.go_version }}-${{ hashFiles('**/go.sum') }}
+    
+    - name: Get dependencies
+      run:  make dependency
+
+    - name : Build binary
+      run: |
+        make DRIVE_MANAGER_TYPE=basemgr build
+        make build DRIVE_MANAGER_TYPE=loopbackmgr
+        
+    - name: Build images
+      run: |
+        make DRIVE_MANAGER_TYPE=loopbackmgr REGISTRY=docker.pkg.github.com/${GITHUB_REPOSITORY} images
+        make DRIVE_MANAGER_TYPE=basemgr REGISTRY=docker.pkg.github.com/${GITHUB_REPOSITORY} images
+        docker images
+    - name: Push images
+      run: |
+        docker login -u publisher -p ${{ secrets.GITHUB_TOKEN }}  docker.pkg.github.com
+        make DRIVE_MANAGER_TYPE=loopbackmgr REGISTRY=docker.pkg.github.com/${GITHUB_REPOSITORY} push-drivemgr 
+        make DRIVE_MANAGER_TYPE=basemgr REGISTRY=docker.pkg.github.com/${GITHUB_REPOSITORY} push
