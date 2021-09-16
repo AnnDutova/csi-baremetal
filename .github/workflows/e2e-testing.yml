@@ -10,7 +10,7 @@ env:
   CSI_BAREMETAL_OPERATOR_DIR: <full_path_to_csi_baremetal_operator_src>
 
 jobs:
-  Build-csi-baremetal:
+  Perform-e2e-testing:
     runs-on: ubuntu-20.04
     steps:
       - name: Check out code
@@ -50,9 +50,8 @@ jobs:
         run: |
           make images REGISTRY=${{ env.REGISTRY }}
           make DRIVE_MANAGER_TYPE=loopbackmgr image-drivemgr REGISTRY=${{ env.REGISTRY }}
-  Build-csi-baremetal-operator:
-    steps:
-      - name: change directory 
+
+      - name: change directory for building csi baremetal operator
         run: |
           cd ${{ env.CSI_BAREMETAL_OPERATOR_DIR }}
           export CSI_OPERATOR_VERSION=`make version`
@@ -65,9 +64,8 @@ jobs:
 
       - name: Build docker image
         run: make docker-build REGISTRY=${{ env.REGISTRY }}
-  Prepare-kind-cluster:
-    steps:
-      - name: change directory 
+
+      - name: change directory for preparing kind cluster
         run: cd ${{ env.CSI_BAREMETAL_DIR }}
 
       - name: Build custom kind binary
@@ -91,7 +89,5 @@ jobs:
           make kind-load-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
           make load-operator-image OPERATOR_VERSION=$CSI_OPERATOR_VERSION REGISTRY=${{ env.REGISTRY }}
 
-  Perform e2e:
-    steps:
       - name: Perform e2e
         run: make test-ci CSI_VERSION=$CSI_VERSION OPERATOR_VERSION=$CSI_OPERATOR_VERSION CHARTS_DIR=${{ env.CSI_BAREMETAL_OPERATOR_DIR }}/charts
