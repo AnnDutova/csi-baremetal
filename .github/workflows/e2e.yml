@@ -3,10 +3,8 @@ name: e2e
 on:
   push:
   pull_request:
-    branches: [ master ]
-env:
-  go_version: '1.16.0'
-  golangci_version: '1.37.0'
+    branches: [ master, testing ]
+
 jobs:
   # e2e
   e2e:
@@ -26,6 +24,7 @@ jobs:
         sudo chmod +x kind
         sudo mv kind /usr/bin
         kind create cluster --config test/kind/kind.yaml
+        
     - name: Sleep for 30 seconds
       uses: jakejarvis/wait-action@master
       with:
