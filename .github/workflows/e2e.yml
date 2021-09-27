@@ -66,19 +66,17 @@ jobs:
           make build
           make DRIVE_MANAGER_TYPE=loopbackmgr build-drivemgr
 
-      - name:  Build docker images
-        run: |
+    - name: Build docker images
+      run: |
           make images REGISTRY=${{ env.REGISTRY }}
           make DRIVE_MANAGER_TYPE=loopbackmgr image-drivemgr REGISTRY=${{ env.REGISTRY }}
 
-      - name:
-        run: |
+    - name: Sidecars preparing
+      run: |
           make deps-docker-pull
           make deps-docker-tag
 
-      - name: Retag CSI images and load them to kind
-        run: |
+    - name: Retag CSI images and load them to kind
+      run: |
           make kind-tag-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
           make kind-load-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
-
-          
