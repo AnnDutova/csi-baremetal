@@ -4,7 +4,8 @@ on:
   push:
   pull_request:
     branches: [ master, testing ]
-
+env:
+  REGISTRY: 220dfe2ceb39/baremetal-registry
 jobs:
   # e2e
   e2e:
@@ -28,12 +29,56 @@ jobs:
     - name: Sleep for 30 seconds
       uses: jakejarvis/wait-action@master
       with:
-        time: '300s'
+        time: '30s'
+
     - name: Get kind cluster information
       run: |
           kubectl cluster-info
           kubectl get pods --all-namespaces
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
-    - name: get info about location 
-      run: ls -la 
+
+    - name: add CSI_VERSION
+      run: export CSI_VERSION=`make version`
+
+    - name: Get dependencies
+      run: make dependency
+
+    - name: Compile proto files
+      run: make install-compile-proto
+
+    - name: Generate CRD
+      run: |
+          make install-controller-gen 
+          make generate-deepcopy
+
+    - name: Run unit tests
+      run: make test
+
+    - name: Run sanity tests
+      run: make test-sanity
+
+    - name: Run linting
+      run: make lint
+
+    - name: Build binary
+      run: |
+          make build
+          make DRIVE_MANAGER_TYPE=loopbackmgr build-drivemgr
+
+      - name:  Build docker images
+        run: |
+          make images REGISTRY=${{ env.REGISTRY }}
+          make DRIVE_MANAGER_TYPE=loopbackmgr image-drivemgr REGISTRY=${{ env.REGISTRY }}
+
+      - name:
+        run: |
+          make deps-docker-pull
+          make deps-docker-tag
+
+      - name: Retag CSI images and load them to kind
+        run: |
+          make kind-tag-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
+          make kind-load-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
+
+          

@@ -3,7 +3,7 @@ name: e2e-testing
 on:
   push:
   pull_request:
-    branches: [ master, testing ]
+    branches: [ master]
 env:
   REGISTRY: <your_docker_hub>
   CSI_BAREMETAL_DIR: <full_path_to_csi_baremetal_src>
