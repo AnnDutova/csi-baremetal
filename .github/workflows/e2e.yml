@@ -48,6 +48,8 @@ jobs:
       run: |
         sudo apt install protobuf-compiler
         go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+        echo 'export GOPATH=$HOME/Go' >> $HOME/.bashrc
+        source $HOME/.bashrc
         echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
         source $HOME/.bashrc
         make install-compile-proto
