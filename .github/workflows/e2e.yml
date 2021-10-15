@@ -19,17 +19,24 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y lvm2
+  
+    - name: install gov1.16.8
+      run: snap install go -classic 
+
+    - name: install helm
+      run: |
+        curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+        sudo apt-get install apt-transport-https --yes
+        echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+        sudo apt-get update
+        sudo apt-get install helm
+
     - name: CUSTOM KIND
       run: |
         wget -O kind https://github.com/painhardcore/builder/releases/download/0.0.1-alpha/kind_v0.8.1
         sudo chmod +x kind
         sudo mv kind /usr/bin
         kind create cluster --config test/kind/kind.yaml
-        
-    - name: Sleep for 30 seconds
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '30s'
 
     - name: Get kind cluster information
       run: |
@@ -37,7 +44,7 @@ jobs:
           kubectl get pods --all-namespaces
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
-
+          
     - name: add CSI_VERSION
       run: export CSI_VERSION=`make version`
 
@@ -55,9 +62,10 @@ jobs:
         make install-compile-proto
 
     - name: Generate CRD
-      run: |
-          make install-controller-gen 
-          make generate-deepcopy
+      run: make install-controller-gen 
+          
+    - name: Deepcopy      
+      run:  make generate-deepcopy
 
     - name: Run unit tests
       run: make test
@@ -79,9 +87,7 @@ jobs:
           make DRIVE_MANAGER_TYPE=loopbackmgr image-drivemgr REGISTRY=${{ env.REGISTRY }}
 
     - name: Sidecars preparing
-      run: |
-          make deps-docker-pull
-          make deps-docker-tag
+      run: make kind-pull-sidecar-images
 
     - name: Retag CSI images and load them to kind
       run: |
