@@ -71,7 +71,7 @@ jobs:
 
     - name: Compile proto files
       run: |
-        echo 'export PATH=$PATH:$GOPATH/bin:$GOBIN' >> $HOME/.bashrc
+        echo 'export PATH=$PATH:$GOPATH/bin:$GOBIN:/home/runner/work/csi-baremetal/csi-baremetal/protoc-gen-go' >> $HOME/.bashrc
         source $HOME/.bashrc
         make install-compile-proto
 
