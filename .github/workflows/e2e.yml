@@ -71,9 +71,8 @@ jobs:
 
     - name: Compile proto files
       run: |
-        echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
+        echo 'export PATH=$PATH:$GOPATH/bin:$GOBIN' >> $HOME/.bashrc
         source $HOME/.bashrc
-        realpath protoc
         make install-compile-proto
 
     - name: Generate CRD
