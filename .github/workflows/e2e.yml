@@ -10,10 +10,11 @@ jobs:
   # e2e
   e2e:
     runs-on: ubuntu-20.04
-    if: "contains(github.event.head_commit.message, '[e2e]')"
     steps:
     - name: create workflow directory
-      run: mkdir dell | cd dell/
+      run: | 
+        mkdir dell
+        cd dell/
 
     - name: Check out code
       uses: actions/checkout@v2
