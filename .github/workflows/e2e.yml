@@ -36,7 +36,7 @@ jobs:
   
     - name: install gov1.16.8
       run: |
-        snap install go -classic 
+        snap install go --classic 
         echo 'export GOPATH=$HOME/Go' >> $HOME/.bashrc
         echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
         source $HOME/.bashrc
