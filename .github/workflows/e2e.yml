@@ -69,11 +69,17 @@ jobs:
     - name: Get dependencies
       run: make dependency
 
-    - name: Compile proto files
+    - name: download proto/protoc-gen-go
       run: |
-        echo 'export PATH=$PATH:$GOPATH/bin:/usr/bin/protoc' >> $HOME/.bashrc
+        go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+        echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
         source $HOME/.bashrc
-        make install-compile-proto
+
+    - name: whereis protoc-gen-go
+      run: whereis protoc-gen-go
+
+    - name: Compile proto files
+      run: make install-compile-proto
 
     - name: Generate CRD
       run: make install-controller-gen 
