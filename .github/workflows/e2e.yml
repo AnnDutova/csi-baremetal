@@ -79,7 +79,7 @@ jobs:
       run: |
         realpath protoc-gen-go
         whereis protoc-gen-go
-        echo 'export PATH=$PATH:/home/runner/work/csi-baremetal/csi-baremetal' >> $HOME/.bashrc
+        echo 'export PATH=$PATH:/usr/bin/protoc' >> $HOME/.bashrc
         source $HOME/.bashrc
 
     - name: Compile proto files
