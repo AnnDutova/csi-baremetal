@@ -56,10 +56,10 @@ jobs:
 
     - name: Get kind cluster information
       run: |
-          kubectl cluster-info
-          kubectl get pods -o wide --all-namespaces
-          echo "current-context:" $(kubectl config current-context)
-          echo "environment-kubeconfig:" ${KUBECONFIG}
+        kubectl cluster-info
+        kubectl get pods -o wide --all-namespaces
+        echo "current-context:" $(kubectl config current-context)
+        echo "environment-kubeconfig:" ${KUBECONFIG}
           
     - name: Kubectl install
       run: |
@@ -100,8 +100,8 @@ jobs:
 
     - name: Build binary
       run: |
-          make build
-          make DRIVE_MANAGER_TYPE=loopbackmgr build-drivemgr
+        make build
+        make DRIVE_MANAGER_TYPE=loopbackmgr build-drivemgr
 
     - name: Download health-probe
       run: make download-grpc-health-probe
@@ -113,8 +113,8 @@ jobs:
 
     - name: add CSI_OPERATOR_VERSION
       run: |
-      cd ${CSI_BAREMETAL_OPERATOR_DIR}
-      export CSI_OPERATOR_VERSION=`make version`
+        cd ${CSI_BAREMETAL_OPERATOR_DIR}
+        export CSI_OPERATOR_VERSION=`make version`
 
     - name: Linting in operators
       run: make lint
@@ -141,8 +141,8 @@ jobs:
 
     - name: Sidecars preparing
       run: |
-      make deps-docker-pull
-      make deps-docker-tag
+        make deps-docker-pull
+        make deps-docker-tag
 
     - name: Retag CSI images and load them to kind
       run: |
@@ -154,6 +154,6 @@ jobs:
     
     - name: 
       run: |
-      sudo apt-get -y install python3-pip
-      pip3 install junit2html
-      junit2html test/e2e/report.xml e2e_results.html
+        sudo apt-get -y install python3-pip
+        pip3 install junit2html
+        junit2html test/e2e/report.xml e2e_results.html
