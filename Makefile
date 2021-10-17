@@ -92,7 +92,8 @@ install-controller-gen:
 
 compile-proto:
 	mkdir -p api/generated/v1/
-	pwd
+	echo 'export PATH=$(PATH):$(GOPATH)/bin:$(GOBIN):$(realpath protoc-gen-go)' >> $HOME/.bashrc
+    source $(HOME)/.bashrc
 	protoc -I=api/v1 --go_out=plugins=grpc:api/generated/v1 api/v1/*.proto
 
 generate-deepcopy:
