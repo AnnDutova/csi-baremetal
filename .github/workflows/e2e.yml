@@ -12,8 +12,21 @@ jobs:
     runs-on: ubuntu-20.04
     if: "contains(github.event.head_commit.message, '[e2e]')"
     steps:
+    - name: create workflow directory
+      run: mkdir dell | cd dell/
+
     - name: Check out code
       uses: actions/checkout@v2
+
+    - name: add operators dir
+      run: |
+        cd ../
+        git clone https://github.com/dell/csi-baremetal-operator.git
+        
+    - name: add envaroment variables 
+      run: |
+        export CSI_BAREMETAL_DIR=$HOME/dell/csi-baremetal
+        export CSI_BAREMETAL_OPERATOR_DIR=$HOME/dell/csi-baremetal-operator
 
     - name: LVL2 install
       run: |
@@ -21,7 +34,11 @@ jobs:
         sudo apt-get install -y lvm2
   
     - name: install gov1.16.8
-      run: snap install go -classic 
+      run: |
+        snap install go -classic 
+        echo 'export GOPATH=$HOME/Go' >> $HOME/.bashrc
+        echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
+        source $HOME/.bashrc
 
     - name: install helm
       run: |
@@ -36,29 +53,32 @@ jobs:
         wget -O kind https://github.com/painhardcore/builder/releases/download/0.0.1-alpha/kind_v0.8.1
         sudo chmod +x kind
         sudo mv kind /usr/bin
-        kind create cluster --config test/kind/kind.yaml
 
     - name: Get kind cluster information
       run: |
           kubectl cluster-info
-          kubectl get pods --all-namespaces
+          kubectl get pods -o wide --all-namespaces
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
           
+    - name: Kubectl install
+      run: |
+        curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+        kubectl version 
+
     - name: add CSI_VERSION
-      run: export CSI_VERSION=`make version`
+      run: |
+        cd ${CSI_BAREMETAL_DIR}
+        export CSI_VERSION=`make version`
 
     - name: Get dependencies
       run: make dependency
 
     - name: Compile proto files
       run: |
-        sudo apt install protobuf-compiler
         go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
-        echo 'export GOPATH=$HOME/Go' >> $HOME/.bashrc
-        source $HOME/.bashrc
-        echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
-        source $HOME/.bashrc
         make install-compile-proto
 
     - name: Generate CRD
@@ -70,26 +90,70 @@ jobs:
     - name: Run unit tests
       run: make test
 
-    - name: Run sanity tests
-      run: make test-sanity
-
     - name: Run linting
-      run: make lint
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1
+        make lint
+
+    - name: Clean prev artifacts
+      run: make clean
 
     - name: Build binary
       run: |
           make build
           make DRIVE_MANAGER_TYPE=loopbackmgr build-drivemgr
 
+    - name: Download health-probe
+      run: make download-grpc-health-probe
+
     - name: Build docker images
       run: |
           make images REGISTRY=${{ env.REGISTRY }}
           make DRIVE_MANAGER_TYPE=loopbackmgr image-drivemgr REGISTRY=${{ env.REGISTRY }}
 
+    - name: add CSI_OPERATOR_VERSION
+      run: |
+      cd ${CSI_BAREMETAL_OPERATOR_DIR}
+      export CSI_OPERATOR_VERSION=`make version`
+
+    - name: Linting in operators
+      run: make lint
+    
+    - name: 
+      run: |
+        make docker-build REGISTRY=${REGISTRY}
+
+    - name: Kind preparation
+      run: |
+        make kind-build
+        make kind-create-cluster
+        kubectl cluster-info --context kind-kind
+        kubectl get pods -o wide --all-namespaces 
+
+    - name: if some pods is fail 
+      run: |
+        sudo sysctl net/netfilter/nf_conntrack_max=131072
+    
+    - name: Sleep for 30 seconds
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '600s'    
+
     - name: Sidecars preparing
-      run: make kind-pull-sidecar-images
+      run: |
+      make deps-docker-pull
+      make deps-docker-tag
 
     - name: Retag CSI images and load them to kind
       run: |
           make kind-tag-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
           make kind-load-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
+          make load-operator-image OPERATOR_VERSION=${CSI_OPERATOR_VERSION} REGISTRY=${{ env.REGISTRY }}
+    - name: Make test
+      run: make test-ci CSI_VERSION=${CSI_VERSION} OPERATOR_VERSION=${CSI_OPERATOR_VERSION} CHARTS_DIR=${CSI_BAREMETAL_OPERATOR_DIR/charts}
+    
+    - name: 
+      run: |
+      sudo apt-get -y install python3-pip
+      pip3 install junit2html
+      junit2html test/e2e/report.xml e2e_results.html
