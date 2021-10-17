@@ -38,7 +38,6 @@ jobs:
       run: |
         sudo snap install go --classic 
         echo 'export GOPATH=$HOME/Go' >> $HOME/.bashrc
-        echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
         source $HOME/.bashrc
 
     - name: install helm
@@ -73,6 +72,8 @@ jobs:
     - name: Compile proto files
       run: |
         go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+        echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
+        source $HOME/.bashrc
         make install-compile-proto
 
     - name: Generate CRD
