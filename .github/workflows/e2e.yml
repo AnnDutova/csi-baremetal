@@ -76,7 +76,9 @@ jobs:
         source $HOME/.bashrc
 
     - name: whereis protoc-gen-go
-      run: whereis protoc-gen-go
+      run: |
+        realpath protoc-gen-go
+        whereis protoc-gen-go
 
     - name: Compile proto files
       run: make install-compile-proto
