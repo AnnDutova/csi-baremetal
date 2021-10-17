@@ -54,13 +54,6 @@ jobs:
         wget -O kind https://github.com/painhardcore/builder/releases/download/0.0.1-alpha/kind_v0.8.1
         sudo chmod +x kind
         sudo mv kind /usr/bin
-
-    - name: Get kind cluster information
-      run: |
-        kubectl cluster-info
-        kubectl get pods -o wide --all-namespaces
-        echo "current-context:" $(kubectl config current-context)
-        echo "environment-kubeconfig:" ${KUBECONFIG}
           
     - name: Kubectl install
       run: |
@@ -130,6 +123,8 @@ jobs:
         make kind-create-cluster
         kubectl cluster-info --context kind-kind
         kubectl get pods -o wide --all-namespaces 
+        echo "current-context:" $(kubectl config current-context)
+        echo "environment-kubeconfig:" ${KUBECONFIG}
 
     - name: if some pods is fail 
       run: |
