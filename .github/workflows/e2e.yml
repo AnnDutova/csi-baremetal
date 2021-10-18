@@ -95,6 +95,9 @@ jobs:
     - name: Run linting
       run: |
         curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1
+        go get -u github.com/golangci/golangci-lint/cmd/golangci-lint@v1.42.1
+        echo 'export PATH=$PATH:$(realpath golangci-lint)' >> $HOME/.bashrc
+        source $HOME/.bashrc
         make lint
 
     - name: Clean prev artifacts
