@@ -132,10 +132,15 @@ jobs:
       run: |
         sudo sysctl net/netfilter/nf_conntrack_max=131072
     
-    - name: Sleep for 30 seconds
+    - name: Sleep for 300 seconds
       uses: jakejarvis/wait-action@master
       with:
-        time: '600s'    
+        time: '300s' 
+
+    - name: Check if all pods is running
+      run: |
+        kubectl cluster-info --context kind-kind
+        kubectl get pods -o wide --all-namespaces 
 
     - name: Sidecars preparing
       run: |
@@ -144,14 +149,15 @@ jobs:
 
     - name: Retag CSI images and load them to kind
       run: |
-          make kind-tag-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
-          make kind-load-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
-          make load-operator-image OPERATOR_VERSION=${CSI_OPERATOR_VERSION} REGISTRY=${{ env.REGISTRY }}
+          docker images 
+          make kind-tag-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
+          make kind-load-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
+          make load-operator-image OPERATOR_VERSION=$CSI_OPERATOR_VERSION REGISTRY=${{ env.REGISTRY }}
           
     - name: Make test
-      run: make test-ci CSI_VERSION=${CSI_VERSION} OPERATOR_VERSION=${CSI_OPERATOR_VERSION} CHARTS_DIR=${/home/runner/work/csi-baremetal/csi-baremetal/charts}
+      run: make test-ci CSI_VERSION=$CSI_VERSION OPERATOR_VERSION=$CSI_OPERATOR_VERSION CHARTS_DIR=/home/runner/work/csi-baremetal/csi-baremetal/charts
     
-    - name: 
+    - name: e2e_results
       run: |
         sudo apt-get -y install python3-pip
         pip3 install junit2html
