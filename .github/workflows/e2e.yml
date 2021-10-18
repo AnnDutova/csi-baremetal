@@ -23,12 +23,13 @@ jobs:
       run: |
         cd ../
         git clone https://github.com/dell/csi-baremetal-operator.git
+        pwd
         ls -al
         
     - name: add envaroment variables 
       run: |
         export CSI_BAREMETAL_DIR=$HOME/dell/csi-baremetal
-        export CSI_BAREMETAL_OPERATOR_DIR=$HOME/dell/csi-baremetal-operator
+        export CSI_BAREMETAL_OPERATOR_DIR=/home/runner/work/csi-baremetal/csi-baremetal-operator
 
     - name: LVL2 install
       run: |
@@ -105,12 +106,7 @@ jobs:
 
     - name: add CSI_OPERATOR_VERSION
       run: |
-        pwd
         cd ${CSI_BAREMETAL_OPERATOR_DIR} 
-        pwd
-        ls -al
-        cd ${realpath csi-baremetal-operator}
-        pwd
         export CSI_OPERATOR_VERSION=`make version`
     
     - name: docker-build operators 
