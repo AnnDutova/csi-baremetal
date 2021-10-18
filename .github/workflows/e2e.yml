@@ -87,6 +87,7 @@ jobs:
         source $HOME/.bashrc
         echo $PATH
         make compile-proto
+        echo $CSI_VERSION
 
     - name: Generate CRD
       run: make install-controller-gen 
@@ -116,7 +117,7 @@ jobs:
     - name: docker-build operators 
       run: |
         cd /home/runner/work/csi-baremetal/csi-baremetal-operator/
-        make docker-build REGISTRY=${REGISTRY}
+        make docker-build REGISTRY=${{ env.REGISTRY }}
           
     - name: Kind preparation
       run: |
@@ -150,12 +151,12 @@ jobs:
     - name: Retag CSI images and load them to kind
       run: |
           docker images 
-          make kind-tag-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
-          make kind-load-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
-          make load-operator-image OPERATOR_VERSION=$CSI_OPERATOR_VERSION REGISTRY=${{ env.REGISTRY }}
+          make kind-tag-images TAG=$(echo $CSI_VERSION) REGISTRY=${{ env.REGISTRY }}
+          make kind-load-images TAG=$(echo $CSI_VERSION) REGISTRY=${{ env.REGISTRY }}
+          make load-operator-image OPERATOR_VERSION=$(echo $CSI_OPERATOR_VERSION) REGISTRY=${{ env.REGISTRY }}
           
     - name: Make test
-      run: make test-ci CSI_VERSION=$CSI_VERSION OPERATOR_VERSION=$CSI_OPERATOR_VERSION CHARTS_DIR=/home/runner/work/csi-baremetal/csi-baremetal/charts
+      run: make test-ci CSI_VERSION=$(echo $CSI_VERSION) OPERATOR_VERSION=$(echo $CSI_OPERATOR_VERSION) CHARTS_DIR=/home/runner/work/csi-baremetal/csi-baremetal/charts
     
     - name: e2e_results
       run: |
