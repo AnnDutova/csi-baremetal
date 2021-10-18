@@ -107,15 +107,12 @@ jobs:
         cd ${CSI_BAREMETAL_OPERATOR_DIR}
         export CSI_OPERATOR_VERSION=`make version`
 
-    - name: Linting in operators
-      run: make lint
-    
-    - name: 
-      run: |
-        make docker-build REGISTRY=${REGISTRY}
+    - name: docker-build operators 
+      run: make docker-build REGISTRY=${REGISTRY}
 
     - name: Kind preparation
       run: |
+        cd ${CSI_BAREMETAL_DIR}
         make kind-build
         make kind-create-cluster
         kubectl cluster-info --context kind-kind
