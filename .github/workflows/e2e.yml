@@ -23,6 +23,7 @@ jobs:
       run: |
         cd ../
         git clone https://github.com/dell/csi-baremetal-operator.git
+        ls -al
         
     - name: add envaroment variables 
       run: |
@@ -104,12 +105,17 @@ jobs:
 
     - name: add CSI_OPERATOR_VERSION
       run: |
-        cd ${CSI_BAREMETAL_OPERATOR_DIR}
+        pwd
+        cd ${CSI_BAREMETAL_OPERATOR_DIR} 
+        pwd
+        ls -al
+        cd ${realpath csi-baremetal-operator}
+        pwd
         export CSI_OPERATOR_VERSION=`make version`
-
+    
     - name: docker-build operators 
       run: make docker-build REGISTRY=${REGISTRY}
-
+          
     - name: Kind preparation
       run: |
         cd ${CSI_BAREMETAL_DIR}
@@ -139,6 +145,7 @@ jobs:
           make kind-tag-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
           make kind-load-images TAG=${CSI_VERSION} REGISTRY=${{ env.REGISTRY }}
           make load-operator-image OPERATOR_VERSION=${CSI_OPERATOR_VERSION} REGISTRY=${{ env.REGISTRY }}
+          
     - name: Make test
       run: make test-ci CSI_VERSION=${CSI_VERSION} OPERATOR_VERSION=${CSI_OPERATOR_VERSION} CHARTS_DIR=${CSI_BAREMETAL_OPERATOR_DIR/charts}
     
