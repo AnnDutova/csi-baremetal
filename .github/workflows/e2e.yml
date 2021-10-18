@@ -73,7 +73,13 @@ jobs:
       run: |
         echo 'export PATH=$PATH:$GOPATH/bin:$GOBIN' >> $HOME/.bashrc
         source $HOME/.bashrc
-        make install-compile-proto
+        echo $GOBIN
+        pwd
+        make install-protoc
+        echo 'export PATH=$PATH:$(realpath protoc-gen-go)' >> $HOME/.bashrc
+        source $HOME/.bashrc
+        mkdir -p api/generated/v1/
+	      protoc -I=api/v1 --go_out=plugins=grpc:api/generated/v1 api/v1/*.proto
 
     - name: Generate CRD
       run: make install-controller-gen 
