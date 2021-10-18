@@ -28,8 +28,8 @@ jobs:
         
     - name: add envaroment variables 
       run: |
-        export CSI_BAREMETAL_DIR=$HOME/dell/csi-baremetal
-        export CSI_BAREMETAL_OPERATOR_DIR=/home/runner/work/csi-baremetal/csi-baremetal-operator
+        export CSI_BAREMETAL_DIR=/home/runner/work/csi-baremetal/csi-baremetal/
+        export CSI_BAREMETAL_OPERATOR_DIR=/home/runner/work/csi-baremetal/csi-baremetal-operator/
 
     - name: LVL2 install
       run: |
