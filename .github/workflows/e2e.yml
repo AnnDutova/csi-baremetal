@@ -66,7 +66,10 @@ jobs:
     - name: add CSI_VERSION
       run: |
         cd ${CSI_BAREMETAL_DIR}
-        export CSI_VERSION=`make version`
+        pwd
+        ls -al
+        export CSI_VERSION=${make version}
+        echo $CSI_VERSION
 
     - name: Get dependencies
       run: make dependency
@@ -107,7 +110,10 @@ jobs:
     - name: add CSI_OPERATOR_VERSION
       run: |
         cd ${CSI_BAREMETAL_OPERATOR_DIR} 
-        export CSI_OPERATOR_VERSION=`make version`
+        pwd
+        ls -al
+        export CSI_OPERATOR_VERSION=${make version}
+        echo $CSI_OPERATOR_VERSION
     
     - name: docker-build operators 
       run: make docker-build REGISTRY=${REGISTRY}
