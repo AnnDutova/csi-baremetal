@@ -110,13 +110,13 @@ jobs:
     - name: add CSI_OPERATOR_VERSION
       run: |
         cd /home/runner/work/csi-baremetal/csi-baremetal-operator/ 
-        pwd
-        ls -al
         export CSI_OPERATOR_VERSION=`make version`
         echo $CSI_OPERATOR_VERSION
     
     - name: docker-build operators 
-      run: make docker-build REGISTRY=${REGISTRY}
+      run: |
+        cd /home/runner/work/csi-baremetal/csi-baremetal-operator/
+        make docker-build REGISTRY=${REGISTRY}
           
     - name: Kind preparation
       run: |
