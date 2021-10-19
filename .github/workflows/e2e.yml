@@ -73,15 +73,27 @@ jobs:
         make install-controller-gen 
         make generate-deepcopy
 
+    - name: Install golangci-lint
+      run: | 
+        wget -q -O golangci-lint.deb https://github.com/golangci/golangci-lint/releases/download/v${{ env.golangci_version }}/golangci-lint-${{ env.golangci_version }}-linux-amd64.deb
+        sudo dpkg -i golangci-lint.deb
+
+    - name: Run linting 
+      run: make lint
+
     - name: Build binary
       run: |
         make build
         make DRIVE_MANAGER_TYPE=loopbackmgr build-drivemgr
 
+    - name: Download health-probe
+      run: make download-grpc-health-probe
+
     - name: Build docker images
       run: |
           make images REGISTRY=${{ env.REGISTRY }}
           make DRIVE_MANAGER_TYPE=loopbackmgr image-drivemgr REGISTRY=${{ env.REGISTRY }}
+          docker images
 
     - name: add CSI_OPERATOR_VERSION
       run: |
@@ -89,7 +101,9 @@ jobs:
         echo "CSI_OPERATOR_VERSION=`make version`" >> $GITHUB_ENV
     
     - name: docker-build operators 
-      run: make docker-build REGISTRY=${{ env.REGISTRY }}
+      run: |
+        make docker-build REGISTRY=${{ env.REGISTRY }}
+        docker images
           
     - name: Kind preparation
       run: |
@@ -106,7 +120,7 @@ jobs:
       with:
         time: '30s' 
 
-    - name: Check if all pods is running
+    - name: Check pods
       run: |
         kubectl cluster-info --context kind-kind
         kubectl get pods -o wide --all-namespaces 
@@ -118,10 +132,10 @@ jobs:
 
     - name: Retag CSI images and load them to kind
       run: |
-          docker images 
-          make kind-tag-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
-          make kind-load-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
-          make load-operator-image OPERATOR_VERSION=$CSI_OPERATOR_VERSION REGISTRY=${{ env.REGISTRY }}
+        docker images 
+        make kind-tag-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
+        make kind-load-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
+        make load-operator-image OPERATOR_VERSION=$CSI_OPERATOR_VERSION REGISTRY=${{ env.REGISTRY }}
           
     - name: Make test
       run: make test-ci CSI_VERSION=$CSI_VERSION OPERATOR_VERSION=$CSI_OPERATOR_VERSION CHARTS_DIR=/home/runner/work/csi-baremetal/csi-baremetal/charts
