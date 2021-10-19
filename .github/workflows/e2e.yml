@@ -6,6 +6,8 @@ on:
     branches: [ master, testing ]
 env:
   REGISTRY: ${{ secrets.REGISTRY}}
+  go_version: '1.16.8'
+  golangci_version: '1.37.0'
 jobs:
   e2e:
     runs-on: ubuntu-20.04
@@ -23,30 +25,32 @@ jobs:
         echo "CSI_BAREMETAL_DIR=$RUNNER_WORKSPACE/csi-baremetal/" >> $GITHUB_ENV
         echo "CSI_BAREMETAL_OPERATOR_DIR=$RUNNER_WORKSPACE/csi-baremetal-operator/" >> $GITHUB_ENV
 
-    - name: Change position
+    - name: Prepare Golang 
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{env.go_version}}
+
+    - name: Check variables
       run: |
-        pwd
-        cd ${{env.CSI_BAREMETAL_DIR}}
-        pwd
-        ls -al
-        cd ${{env.CSI_BAREMETAL_OPERATOR_DIR}}
-        pwd
-        ls -al
-        echo ${{ env.REGISTRY }}
+        go env
+        go version
 
     - name: LVL2 install
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y lvm2
-  
+      run: sudo apt-get install -y lvm2
+
     - name: install gov1.16.8
       run: |
-        sudo snap install go --classic 
-        echo 'export GOPATH=$HOME/Go' >> $HOME/.bashrc
-        source $HOME/.bashrc
+        echo 'GOPATH=$HOME/Go' >> $GITHUB_PATH
+        go env 
+
+    - uses: azure/setup-helm@v1
+      with:
+        version: '<version>'
+      id: install
 
     - name: install helm
       run: |
+        helm version
         curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
         sudo apt-get install apt-transport-https --yes
         echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
@@ -68,7 +72,7 @@ jobs:
 
     - name: add CSI_VERSION
       run: |
-        cd /home/runner/work/csi-baremetal/csi-baremetal/
+        cd ${{env.CSI_BAREMETAL_DIR}}
         export CSI_VERSION=`make version`
         echo $CSI_VERSION
 
@@ -111,18 +115,18 @@ jobs:
 
     - name: add CSI_OPERATOR_VERSION
       run: |
-        cd /home/runner/work/csi-baremetal/csi-baremetal-operator/ 
+        cd ${{env.CSI_BAREMETAL_OPERATOR_DIR}}
         export CSI_OPERATOR_VERSION=`make version`
         echo $CSI_OPERATOR_VERSION
     
     - name: docker-build operators 
       run: |
-        cd /home/runner/work/csi-baremetal/csi-baremetal-operator/
+        cd ${{env.CSI_BAREMETAL_OPERATOR_DIR}}
         make docker-build REGISTRY=${{ env.REGISTRY }}
           
     - name: Kind preparation
       run: |
-        cd /home/runner/work/csi-baremetal/csi-baremetal/
+        cd ${{env.CSI_BAREMETAL_DIR}}
         make kind-build
         make kind-create-cluster
         kubectl cluster-info --context kind-kind
