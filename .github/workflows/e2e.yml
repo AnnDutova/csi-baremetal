@@ -30,27 +30,13 @@ jobs:
       with:
         go-version: ${{env.go_version}}
 
-    - name: Check variables
+    - name: LVM2 install
       run: |
-        go env
-        go version
+        lvm2 version
+        sudo apt-get install -y lvm2
 
-    - name: LVL2 install
-      run: sudo apt-get install -y lvm2
-
-    - name: install gov1.16.8
+    - name: Install helm
       run: |
-        echo 'GOPATH=$HOME/Go' >> $GITHUB_PATH
-        go env 
-
-    - uses: azure/setup-helm@v1
-      with:
-        version: '<version>'
-      id: install
-
-    - name: install helm
-      run: |
-        helm version
         curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
         sudo apt-get install apt-transport-https --yes
         echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
@@ -73,40 +59,23 @@ jobs:
     - name: add CSI_VERSION
       run: |
         cd ${{env.CSI_BAREMETAL_DIR}}
-        export CSI_VERSION=`make version`
-        echo $CSI_VERSION
+        echo "CSI_VERSION=`make version`" >> $GITHUB_ENV
 
     - name: Get dependencies
       run: make dependency
 
     - name: Compile proto files
-      run: |
-        echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
-        source $HOME/.bashrc
-        pwd
-        sudo apt install protobuf-compiler
-        sudo apt install golang-goprotobuf-dev
-        make install-protoc
-        go get -u github.com/golang/protobuf/protoc-gen-go@v1.3.2
-        echo 'export PATH=$PATH:$(realpath protoc-gen-go)' >> $HOME/.bashrc
-        source $HOME/.bashrc
-        echo $PATH
-        make compile-proto
-        echo $CSI_VERSION
+      run: make install-compile-proto
 
     - name: Generate CRD
-      run: make install-controller-gen 
-          
-    - name: Deepcopy      
-      run:  make generate-deepcopy
+      run: |
+        make install-controller-gen 
+        make generate-deepcopy
 
     - name: Build binary
       run: |
         make build
         make DRIVE_MANAGER_TYPE=loopbackmgr build-drivemgr
-
-    - name: Download health-probe
-      run: make download-grpc-health-probe
 
     - name: Build docker images
       run: |
@@ -116,13 +85,10 @@ jobs:
     - name: add CSI_OPERATOR_VERSION
       run: |
         cd ${{env.CSI_BAREMETAL_OPERATOR_DIR}}
-        export CSI_OPERATOR_VERSION=`make version`
-        echo $CSI_OPERATOR_VERSION
+        echo "CSI_OPERATOR_VERSION=`make version`" >> $GITHUB_ENV
     
     - name: docker-build operators 
-      run: |
-        cd ${{env.CSI_BAREMETAL_OPERATOR_DIR}}
-        make docker-build REGISTRY=${{ env.REGISTRY }}
+      run: make docker-build REGISTRY=${{ env.REGISTRY }}
           
     - name: Kind preparation
       run: |
@@ -133,15 +99,11 @@ jobs:
         kubectl get pods -o wide --all-namespaces 
         echo "current-context:" $(kubectl config current-context)
         echo "environment-kubeconfig:" ${KUBECONFIG}
-
-    - name: if some pods is fail 
-      run: |
-        sudo sysctl net/netfilter/nf_conntrack_max=131072
     
-    - name: Sleep for 300 seconds
+    - name: Sleep for 30 seconds
       uses: jakejarvis/wait-action@master
       with:
-        time: '300s' 
+        time: '30s' 
 
     - name: Check if all pods is running
       run: |
@@ -156,21 +118,12 @@ jobs:
     - name: Retag CSI images and load them to kind
       run: |
           docker images 
-          export CSI_VERSION=`make version`
-          cd /home/runner/work/csi-baremetal/csi-baremetal-operator/ 
-          export CSI_OPERATOR_VERSION=`make version`
-          cd /home/runner/work/csi-baremetal/csi-baremetal/
           make kind-tag-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
           make kind-load-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
           make load-operator-image OPERATOR_VERSION=$CSI_OPERATOR_VERSION REGISTRY=${{ env.REGISTRY }}
           
     - name: Make test
-      run: |
-          export CSI_VERSION=`make version`
-          cd /home/runner/work/csi-baremetal/csi-baremetal-operator/ 
-          export CSI_OPERATOR_VERSION=`make version`
-          cd /home/runner/work/csi-baremetal/csi-baremetal/  
-          make test-ci CSI_VERSION=$CSI_VERSION OPERATOR_VERSION=$CSI_OPERATOR_VERSION CHARTS_DIR=/home/runner/work/csi-baremetal/csi-baremetal/charts
+      run: make test-ci CSI_VERSION=$CSI_VERSION OPERATOR_VERSION=$CSI_OPERATOR_VERSION CHARTS_DIR=/home/runner/work/csi-baremetal/csi-baremetal/charts
     
     - name: e2e_results
       run: |
