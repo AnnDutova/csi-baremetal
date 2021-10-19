@@ -5,31 +5,34 @@ on:
   pull_request:
     branches: [ master, testing ]
 env:
-  REGISTRY: 220dfe2ceb39/baremetal-registry
+  REGISTRY: ${{ secrets.REGISTRY}}
 jobs:
-  # e2e
   e2e:
     runs-on: ubuntu-20.04
     steps:
-    - name: create workflow directory
-      run: | 
-        mkdir dell
-        cd dell/
-
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: add operators dir
+    - name: Add operators repository
       run: |
         cd ../
         git clone https://github.com/dell/csi-baremetal-operator.git
+        
+    - name: Set environment variables
+      run: |
+        echo "CSI_BAREMETAL_DIR=$RUNNER_WORKSPACE/csi-baremetal/" >> $GITHUB_ENV
+        echo "CSI_BAREMETAL_OPERATOR_DIR=$RUNNER_WORKSPACE/csi-baremetal-operator/" >> $GITHUB_ENV
+
+    - name: Change position
+      run: |
+        pwd
+        cd ${{env.CSI_BAREMETAL_DIR}}
         pwd
         ls -al
-        
-    - name: add envaroment variables 
-      run: |
-        export CSI_BAREMETAL_DIR=/home/runner/work/csi-baremetal/csi-baremetal/
-        export CSI_BAREMETAL_OPERATOR_DIR=/home/runner/work/csi-baremetal/csi-baremetal-operator/
+        cd ${{env.CSI_BAREMETAL_OPERATOR_DIR}}
+        pwd
+        ls -al
+        echo ${{ env.REGISTRY }}
 
     - name: LVL2 install
       run: |
