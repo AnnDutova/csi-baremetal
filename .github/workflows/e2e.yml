@@ -94,6 +94,7 @@ jobs:
     
     - name: docker-build operators 
       run: |
+        cd ${{env.CSI_BAREMETAL_OPERATOR_DIR}}
         make docker-build REGISTRY=${{ env.REGISTRY }}
         docker images
           
