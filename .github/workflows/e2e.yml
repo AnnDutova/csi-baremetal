@@ -107,11 +107,12 @@ jobs:
         kubectl get pods -o wide --all-namespaces 
         echo "current-context:" $(kubectl config current-context)
         echo "environment-kubeconfig:" ${KUBECONFIG}
+        sudo sysctl net/netfilter/nf_conntrack_max=131072
     
-    - name: Sleep for 30 seconds
+    - name: Sleep for 60 seconds
       uses: jakejarvis/wait-action@master
       with:
-        time: '30s' 
+        time: '60s' 
 
     - name: Check pods
       run: |
