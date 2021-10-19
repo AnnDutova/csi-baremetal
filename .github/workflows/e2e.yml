@@ -73,6 +73,9 @@ jobs:
         make install-controller-gen 
         make generate-deepcopy
 
+    - name: Clean artefacts
+      run: make clean 
+
     - name: Build binary
       run: |
         make build
@@ -85,7 +88,6 @@ jobs:
       run: |
           make images REGISTRY=${{ env.REGISTRY }}
           make DRIVE_MANAGER_TYPE=loopbackmgr image-drivemgr REGISTRY=${{ env.REGISTRY }}
-          docker images
 
     - name: add CSI_OPERATOR_VERSION
       run: |
@@ -96,7 +98,6 @@ jobs:
       run: |
         cd ${{env.CSI_BAREMETAL_OPERATOR_DIR}}
         make docker-build REGISTRY=${{ env.REGISTRY }}
-        docker images
           
     - name: Kind preparation
       run: |
