@@ -31,9 +31,7 @@ jobs:
         go-version: ${{env.go_version}}
 
     - name: LVM2 install
-      run: |
-        lvm2 version
-        sudo apt-get install -y lvm2
+      run: sudo apt-get install -y lvm2
 
     - name: Install helm
       run: |
