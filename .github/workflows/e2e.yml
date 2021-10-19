@@ -79,7 +79,7 @@ jobs:
         sudo dpkg -i golangci-lint.deb
 
     - name: Run linting 
-      run: make lint
+      run: GOGC=300 make lint
 
     - name: Build binary
       run: |
