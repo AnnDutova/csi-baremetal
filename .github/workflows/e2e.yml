@@ -134,7 +134,10 @@ jobs:
     - name: Check pods
       run: |
         kubectl cluster-info --context kind-kind
-        kubectl get pods -o wide --all-namespaces 
+        kubectl get pods -o wide --all-namespaces
+        kubectl describe node kind-worker
+        kubectl describe node kind-worker2
+        kubectl describe node kind-worker3  
 
     - name: Sidecars preparing
       run: |
@@ -149,6 +152,4 @@ jobs:
         make load-operator-image OPERATOR_VERSION=$CSI_OPERATOR_VERSION REGISTRY=${{ env.REGISTRY }}
           
     - name: Make test
-      run: |
-        go mod download github.com/onsi/ginkgo
-        make test-ci CSI_VERSION=$CSI_VERSION OPERATOR_VERSION=$CSI_OPERATOR_VERSION CHARTS_DIR=${{env.CSI_BAREMETAL_DIR}}/charts
+      run: make test-ci CSI_VERSION=$CSI_VERSION OPERATOR_VERSION=$CSI_OPERATOR_VERSION CHARTS_DIR=${{env.CSI_BAREMETAL_DIR}}charts
