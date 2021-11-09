@@ -14,8 +14,6 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v2
-      with: 
-        path: ./csi-baremetal
 
     - name: Check position
       run: |
@@ -29,7 +27,7 @@ jobs:
         
     - name: Set environment variables
       run: |
-        echo "CSI_BAREMETAL_DIR=$RUNNER_WORKSPACE/csi-baremetal/csi-baremetal/" >> $GITHUB_ENV
+        echo "CSI_BAREMETAL_DIR=$RUNNER_WORKSPACE/csi-baremetal/" >> $GITHUB_ENV
         echo "CSI_BAREMETAL_OPERATOR_DIR=$RUNNER_WORKSPACE/csi-baremetal/csi-baremetal-operator/" >> $GITHUB_ENV
 
     - name: Prepare Golang 
