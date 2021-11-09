@@ -72,7 +72,9 @@ jobs:
 
     - name: Compile proto files
       run: |
-        make install-compile-proto
+        make install-protoc
+        echo "$RUNNER_WORKSPACE/csi-baremetal/protoc-gen-go" >> $GITHUB_PATH
+        make compile-proto
 
     - name: Generate CRD
       run: |

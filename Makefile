@@ -82,7 +82,6 @@ install-protoc:
 	sudo mv proto_3.11.0/bin/protoc /usr/bin/protoc && \
 	protoc --version; rm -rf proto_3.11.0; rm protoc-*
 	sudo go get -u github.com/golang/protobuf/protoc-gen-go@v1.3.2
-	sudo realpath protoc-gen-go
 
 install-compile-proto: install-protoc compile-proto
 
