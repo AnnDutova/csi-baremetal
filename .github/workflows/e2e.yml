@@ -15,13 +15,18 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
       with: 
-        path: ./csi-baremetal
+        path: $RUNNER_WORKSPACE/csi-baremetal
+
+    - name: Check position
+      run: |
+        pwd
+        ls -all
 
     - name: Add csi-baremetal-operator
       uses: actions/checkout@v2
       with:
         repository: dell/csi-baremetal-operator 
-        path: ./csi-baremetal-operator
+        path: $RUNNER_WORKSPACE/csi-baremetal-operator
         
     - name: Set environment variables
       run: |
