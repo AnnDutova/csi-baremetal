@@ -74,12 +74,12 @@ jobs:
       run: |
         make install-protoc
         realpath protoc-gen-go
-        cd /home/runner/work/csi-baremetal/csi-baremetal/protoc-gen-go
+        cd /home/runner/work/csi-baremetal/csi-baremetal/
         ls -all
-        echo 'export PATH=${PATH}:$RUNNER_WORKSPACE/csi-baremetal/protoc-gen-go/' >> ${HOME}/.bashrc
+        echo 'export PATH=${PATH}:$RUNNER_WORKSPACE/csi-baremetal/' >> ${HOME}/.bashrc
         echo 'export PATH=${PATH}:/home/runner/work/csi-baremetal/csi-baremetal/protoc-gen-go' >> ${HOME}/.bashrc
         source ${HOME}/.bashrc
-        echo "$RUNNER_WORKSPACE/csi-baremetal/protoc-gen-go" >> $GITHUB_PATH
+        echo "$RUNNER_WORKSPACE/csi-baremetal/" >> $GITHUB_PATH
         make compile-proto
 
     - name: Generate CRD
