@@ -73,6 +73,10 @@ jobs:
     - name: Compile proto files
       run: |
         make install-protoc
+        cd ${realpath protoc-gen-go}
+        ls -all
+        echo 'export PATH=${PATH}:${GOPATH}/bin' >> ${HOME}/.bashrc
+        source ${HOME}/.bashrc
         echo "$RUNNER_WORKSPACE/csi-baremetal/protoc-gen-go" >> $GITHUB_PATH
         make compile-proto
 
