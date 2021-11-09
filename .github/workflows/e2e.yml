@@ -75,7 +75,8 @@ jobs:
         make install-protoc
         realpath protoc-gen-go
         ls -all
-        echo 'export PATH=${PATH}:${GOPATH}/bin' >> ${HOME}/.bashrc
+        echo 'export PATH=${PATH}:$RUNNER_WORKSPACE/csi-baremetal/protoc-gen-go/' >> ${HOME}/.bashrc
+        echo 'export PATH=${PATH}:/home/runner/work/csi-baremetal/csi-baremetal/protoc-gen-go' >> ${HOME}/.bashrc
         source ${HOME}/.bashrc
         echo "$RUNNER_WORKSPACE/csi-baremetal/protoc-gen-go" >> $GITHUB_PATH
         make compile-proto
