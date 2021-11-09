@@ -15,23 +15,22 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
       with: 
-        path: $RUNNER_WORKSPACE/csi-baremetal
+        path: ./csi-baremetal
 
     - name: Check position
       run: |
-        pwd
-        ls -all
+        echo $RUNNER_WORKSPACE
 
     - name: Add csi-baremetal-operator
       uses: actions/checkout@v2
       with:
         repository: dell/csi-baremetal-operator 
-        path: $RUNNER_WORKSPACE/csi-baremetal-operator
+        path: ./csi-baremetal-operator
         
     - name: Set environment variables
       run: |
-        echo "CSI_BAREMETAL_DIR=$RUNNER_WORKSPACE/csi-baremetal/" >> $GITHUB_ENV
-        echo "CSI_BAREMETAL_OPERATOR_DIR=$RUNNER_WORKSPACE/csi-baremetal-operator/" >> $GITHUB_ENV
+        echo "CSI_BAREMETAL_DIR=$RUNNER_WORKSPACE/csi-baremetal/csi-baremetal/" >> $GITHUB_ENV
+        echo "CSI_BAREMETAL_OPERATOR_DIR=$RUNNER_WORKSPACE/csi-baremetal/csi-baremetal-operator/" >> $GITHUB_ENV
 
     - name: Prepare Golang 
       uses: actions/setup-go@v2
