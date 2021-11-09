@@ -72,8 +72,6 @@ jobs:
 
     - name: Compile proto files
       run: |
-        sudo apt install protobuf-compiler
-        sudo apt install golang-goprotobuf-dev
         make install-compile-proto
 
     - name: Generate CRD
