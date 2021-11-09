@@ -73,7 +73,7 @@ jobs:
     - name: Compile proto files
       run: |
         make install-protoc
-        cd /protoc-gen-go
+        realpath protoc-gen-go
         ls -all
         echo 'export PATH=${PATH}:${GOPATH}/bin' >> ${HOME}/.bashrc
         source ${HOME}/.bashrc
