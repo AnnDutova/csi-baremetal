@@ -81,9 +81,7 @@ install-protoc:
 	unzip protoc-3.11.0-linux-x86_64.zip -d proto_3.11.0/ && \
 	sudo mv proto_3.11.0/bin/protoc /usr/bin/protoc && \
 	protoc --version; rm -rf proto_3.11.0; rm protoc-*
-	sudo go get -u github.com/golang/protobuf/protoc-gen-go@v1.3.2
-	mkdir -p api/generated/v1/
-	protoc -I=api/v1 --go_out=plugins=grpc:api/generated/v1 api/v1/*.proto
+	go get -u google.golang.org/protobuf/protoc-gen-go@v1.26.0
 
 install-compile-proto: install-protoc compile-proto
 

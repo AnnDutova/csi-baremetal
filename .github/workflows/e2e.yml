@@ -72,7 +72,7 @@ jobs:
 
     - name: Compile proto files
       run: |
-        make install-protoc
+        make install-compile-proto
 
     - name: Generate CRD
       run: |
