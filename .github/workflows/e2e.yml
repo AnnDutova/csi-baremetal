@@ -113,10 +113,6 @@ jobs:
         kubectl get pods -o wide --all-namespaces 
         echo "current-context:" $(kubectl config current-context)
         echo "environment-kubeconfig:" ${KUBECONFIG}
-        kubectl get po
-        kubectl get po --all-namespaces
-        kubectl get pods --all-namespaces
-        kubectl get pods -o wide
 
     - name: Check pods
       uses: nick-invision/retry@v2
@@ -124,7 +120,7 @@ jobs:
         timeout_seconds: 5
         max_attempts: 10
         retry_on: error
-        command: kubectl get pods --all-namespaces | grep -v STATUS | grep -v Running && exit 1 || exit 0
+        command: kubectl get pods -o wide --all-namespaces | grep -v STATUS | grep -v Running && exit 1 || exit 0
 
     - name: Sidecars preparing
       run: |
