@@ -72,6 +72,8 @@ jobs:
 
     - name: Compile proto files
       run: |
+        sudo apt install protobuf-compiler
+        sudo apt install golang-goprotobuf-dev        
         make install-compile-proto
 
     - name: Generate CRD
@@ -111,16 +113,14 @@ jobs:
         kubectl get pods -o wide --all-namespaces 
         echo "current-context:" $(kubectl config current-context)
         echo "environment-kubeconfig:" ${KUBECONFIG}
-    
-    - name: Sleep for 60 seconds
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '60s' 
 
     - name: Check pods
-      run: |
-        kubectl cluster-info --context kind-kind
-        kubectl get pods -o wide --all-namespaces
+      uses: nick-invision/retry@v2
+      with:
+        timeout_seconds: 5
+        max_attempts: 10
+        retry_on: error
+        command: kubectl get pods -o wide --all-namespaces | grep -v Running || exit 1
 
     - name: Sidecars preparing
       run: |
