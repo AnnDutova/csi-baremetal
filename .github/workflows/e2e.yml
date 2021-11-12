@@ -120,7 +120,7 @@ jobs:
         timeout_seconds: 5
         max_attempts: 10
         retry_on: error
-        command: kubectl get pods -o wide --all-namespaces | grep -v Running && exit 1 || exit 0
+        command: kubectl get po | grep -v Running && exit 1 || exit 0
 
     - name: Sidecars preparing
       run: |
