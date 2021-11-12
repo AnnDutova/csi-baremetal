@@ -2,7 +2,7 @@ name: e2e
 
 on:
   push:
-    branches: [ master ]
+    branches: [ e2e-ci ]
 env:
   REGISTRY: ${{ secrets.REGISTRY}}
   go_version: '1.16.8'
