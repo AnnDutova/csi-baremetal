@@ -1,9 +1,6 @@
 name: e2e
 
-on:
-  push:
-  pull_request:
-    branches: [ master, testing ]
+on: [push]
 env:
   REGISTRY: 'ghcr.io/dell/csi-baremetal'
   go_version: '1.16.8'
