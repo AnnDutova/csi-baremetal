@@ -5,9 +5,11 @@ on:
   pull_request:
     branches: [ master, testing ]
 env:
-  REGISTRY: ${{ secrets.REGISTRY}}
+  REGISTRY: 'ghcr.io/dell/csi-baremetal/'
   go_version: '1.16.8'
   golangci_version: '1.37.0'
+  helm_version: '3.7.1'
+  kubectl_version: '1.22.2'
 jobs:
   e2e:
     runs-on: ubuntu-20.04
@@ -40,9 +42,13 @@ jobs:
 
     - name: Install helm
       uses: azure/setup-helm@v1
+      with:
+        version: ${{env.helm_version}}
 
     - name: Kubectl install
       uses: azure/setup-kubectl@v1
+      with:
+        version: ${{env.kubectl_version}}
 
     - name: add CSI_VERSION
       run: |
@@ -51,12 +57,6 @@ jobs:
 
     - name: Get dependencies
       run: make dependency
-
-    - name: Compile proto files
-      run: |
-        sudo apt install protobuf-compiler
-        sudo apt install golang-goprotobuf-dev        
-        make install-compile-proto
 
     - name: Generate CRD
       run: |
