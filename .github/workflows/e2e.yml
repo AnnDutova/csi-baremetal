@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [ master, testing ]
 env:
-  REGISTRY: 'ghcr.io/dell/csi-baremetal/'
+  REGISTRY: 'ghcr.io/dell/csi-baremetal'
   go_version: '1.16.8'
   golangci_version: '1.37.0'
   helm_version: '3.7.1'
