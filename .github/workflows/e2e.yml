@@ -9,7 +9,7 @@ env:
   go_version: '1.16.8'
   golangci_version: '1.37.0'
   helm_version: '3.7.1'
-  kubectl_version: '1.22.2'
+  kubectl_version: 'v1.22.2'
 jobs:
   e2e:
     runs-on: ubuntu-20.04
