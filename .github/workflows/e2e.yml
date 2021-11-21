@@ -15,8 +15,8 @@ env:
   kind_wait: '30s'
 jobs:
   e2e:
-    runs-on: ubuntu-20.04
     if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/ci')
+    runs-on: ubuntu-20.04
     steps:
     - name: Get operator branch 
       uses: actions/github-script@v5
@@ -35,8 +35,8 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dell/csi-baremetal-operator 
-        path: ./csi-baremetal-operator 
         ref: '${{steps.set-branch.outputs.result}}'
+        path: ./csi-baremetal-operator 
 
     - name: Send start message
       uses: actions-ecosystem/action-create-comment@v1
