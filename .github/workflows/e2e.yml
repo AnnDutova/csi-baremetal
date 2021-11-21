@@ -40,11 +40,11 @@ jobs:
 
     - name: Send start message
       uses: actions-ecosystem/action-create-comment@v1
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            body: |
-              @${{ github.actor }}, start CI. 
-              Parameters: operator_branch='${{steps.set-branch.outputs.result}}'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        body: |
+          @${{ github.actor }}, start CI. 
+          Parameters: operator_branch='${{steps.set-branch.outputs.result}}'
       
     - name: Set environment variables
       run: |
@@ -149,7 +149,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-            @${{ github.actor }}, some tests fell
+            @${{ github.actor }}, CI tests failed
 
   success: 
       needs: e2e
@@ -161,5 +161,5 @@ jobs:
           with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             body: |
-              @${{ github.actor }}, success.      
+              @${{ github.actor }}, CI tests passed    
 
