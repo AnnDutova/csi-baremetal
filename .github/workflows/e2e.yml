@@ -7,6 +7,8 @@ env:
   golangci_version: '1.37.0'
   helm_version: '3.7.1'
   kubectl_version: 'v1.22.2'
+  kind_config: 'small-kind.yaml'
+  kind_image: 'v1.19.11'
 jobs:
   e2e:
     runs-on: ubuntu-20.04
@@ -80,20 +82,12 @@ jobs:
       run: |
         cd ${{env.CSI_BAREMETAL_DIR}}
         make kind-build KIND_VER=0.11.1
-        make kind-create-cluster-v19
+        make kind-create-cluster KIND_CONFIG=${{env.kind_config}} KIND_IMAGE_VERSION=${{env.kind_image}}
         kubectl cluster-info --context kind-kind
         kubectl get pods -o wide --all-namespaces 
         echo "current-context:" $(kubectl config current-context)
         echo "environment-kubeconfig:" ${KUBECONFIG}
       
-    - name: Check pods
-      uses: nick-invision/retry@v2
-      with:
-        timeout_seconds: 5
-        max_attempts: 10
-        retry_on: error
-        command: kubectl get pods -o wide --all-namespaces | grep -v STATUS | grep -v Running && exit 1 || exit 0
-
     - name: Sidecars preparing
       run: |
         make deps-docker-pull

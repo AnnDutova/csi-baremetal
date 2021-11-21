@@ -76,5 +76,9 @@ KIND_DIR := test/kind
 KIND     := ${KIND_DIR}/kind
 KIND_VER := 0.8.1
 
+### Kind for ci
+KIND_CONFIG := kind.yaml
+KIND_IMAGE_VERSION := v1.18.2
+
 # override some of variables, optional file
 -include variables.override.mk
