@@ -2,7 +2,6 @@ name: e2e
 
 on: [push]
 env:
-  REGISTRY: 'ghcr.io/dell/csi-baremetal'
   go_version: '1.16.8'
   golangci_version: '1.37.0'
   helm_version: '3.7.1'
@@ -70,8 +69,8 @@ jobs:
 
     - name: Build docker images
       run: |
-          make images REGISTRY=${{ env.REGISTRY }}
-          make DRIVE_MANAGER_TYPE=loopbackmgr image-drivemgr REGISTRY=${{ env.REGISTRY }}
+          make images 
+          make DRIVE_MANAGER_TYPE=loopbackmgr image-drivemgr 
 
     - name: add CSI_OPERATOR_VERSION
       run: |
@@ -81,7 +80,7 @@ jobs:
     - name: docker-build operators 
       run: |
         cd ${{env.CSI_BAREMETAL_OPERATOR_DIR}}
-        make docker-build REGISTRY=${{ env.REGISTRY }}
+        make docker-build 
    
     - name: Kind preparation
       run: |
@@ -109,9 +108,9 @@ jobs:
     - name: Retag CSI images and load them to kind
       run: |
         docker images 
-        make kind-tag-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
-        make kind-load-images TAG=$CSI_VERSION REGISTRY=${{ env.REGISTRY }}
-        make load-operator-image OPERATOR_VERSION=$CSI_OPERATOR_VERSION REGISTRY=${{ env.REGISTRY }}
+        make kind-tag-images TAG=$CSI_VERSION 
+        make kind-load-images TAG=$CSI_VERSION 
+        make load-operator-image OPERATOR_VERSION=$CSI_OPERATOR_VERSION }
           
     - name: Make test
       run: make test-short-ci CSI_VERSION=$CSI_VERSION OPERATOR_VERSION=$CSI_OPERATOR_VERSION CHARTS_DIR=${{env.CSI_BAREMETAL_OPERATOR_DIR}}charts
