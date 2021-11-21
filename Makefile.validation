@@ -137,7 +137,7 @@ kind-install: kind-build
 	kind version
 
 kind-create-cluster:
-	$(KIND) create cluster --config $(KIND_DIR)/$(KIND_CONFIG) --image kindest/node:$(KIND_IMAGE_VERSION) --wait 30s
+	$(KIND) create cluster --config $(KIND_DIR)/$(KIND_CONFIG) --image kindest/node:$(KIND_IMAGE_VERSION) --wait $(KIND_WAIT)
 
 kind-delete-cluster:
 	$(KIND) delete cluster
