@@ -19,14 +19,14 @@ jobs:
     if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/ci')
     steps:
     - name: Get operator branch 
-        uses: actions/github-script@v5
-        id: set-branch
-        with:
-          result-encoding: string
-          script: |
-            var branch = `${{ github.event.comment.body }}`.split(String.fromCharCode(0x0A))[1].replaceAll(" ", "")
-            var key = "operator_branch="
-            return branch.search(key) !== -1 ? branch.split(key)[1] : ``
+      uses: actions/github-script@v5
+      id: set-branch
+      with:
+        result-encoding: string
+        script: |
+          var branch = `${{ github.event.comment.body }}`.split(String.fromCharCode(0x0A))[1].replaceAll(" ", "")
+          var key = "operator_branch="
+          return branch.search(key) !== -1 ? branch.split(key)[1] : ``
 
     - name: Check out code
       uses: actions/checkout@v2
@@ -163,4 +163,3 @@ jobs:
             body: |
               @${{ github.actor }}, success.      
 
-              
