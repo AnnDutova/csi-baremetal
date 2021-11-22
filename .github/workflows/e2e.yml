@@ -9,7 +9,6 @@ env:
   kubectl_version: 'v1.22.2'
   kind_config: 'small-kind.yaml'
   kind_image: 'v1.19.11'
-  kind_wait: '30s'
 jobs:
   e2e:
     runs-on: ubuntu-20.04
@@ -90,7 +89,7 @@ jobs:
       run: |
         cd ${{env.CSI_BAREMETAL_DIR}}
         make kind-build KIND_VER=0.11.1
-        make kind-create-cluster KIND_CONFIG=${{env.kind_config}} KIND_IMAGE_VERSION=${{env.kind_image}} KIND_WAIT=${{env.kind_wait}}
+        make kind-create-cluster KIND_CONFIG=${{env.kind_config}} KIND_IMAGE_VERSION=${{env.kind_image}} --wait 30s
         kubectl cluster-info --context kind-kind
         kubectl get pods -o wide --all-namespaces 
         echo "current-context:" $(kubectl config current-context)
