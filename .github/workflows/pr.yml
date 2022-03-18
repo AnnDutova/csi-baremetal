@@ -48,6 +48,11 @@ jobs:
     - name: Get dependencies
       run:  make dependency
       
+    - name: Install golangci-lint
+      run: |
+        wget -q -O golangci-lint.deb https://github.com/golangci/golangci-lint/releases/download/v${{ env.golangci_version }}/golangci-lint-${{ env.golangci_version }}-linux-amd64.deb
+        sudo dpkg -i golangci-lint.deb
+
     - name: Lint code
       run: GOGC=300 make lint
       
