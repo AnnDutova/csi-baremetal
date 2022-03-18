@@ -101,7 +101,7 @@ jobs:
   
     - name: Compile proto files
       run: |
-        sudo apt install unzip
+        sudo zypper install unzip
         make install-compile-proto 
 
     - name: Generate CRD
