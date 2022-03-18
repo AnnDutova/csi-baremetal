@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [ master ]
 env:
-  go_version: '1.16.0'
-  golangci_version: '1.37.0'
+  go_version: '1.16.13'
+  golangci_version: '1.44.0'
 jobs:
   lint-test:
     name: Validate code and charts
@@ -48,10 +48,10 @@ jobs:
     - name: Get dependencies
       run:  make dependency
       
-    - name: Install golangci-lint
-      run: |
-        wget -q -O golangci-lint.deb https://github.com/golangci/golangci-lint/releases/download/v${{ env.golangci_version }}/golangci-lint-${{ env.golangci_version }}-linux-amd64.deb
-        sudo dpkg -i golangci-lint.deb
+    #- name: Install golangci-lint
+    #  run: |
+    #    wget -q -O golangci-lint.deb https://github.com/golangci/golangci-lint/releases/download/v${{ env.golangci_version }}/golangci-lint-${{ env.golangci_version }}-linux-amd64.deb
+    #    sudo dpkg -i golangci-lint.deb
 
     - name: Lint code
       run: GOGC=300 make lint
