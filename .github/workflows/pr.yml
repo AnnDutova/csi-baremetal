@@ -101,7 +101,7 @@ jobs:
   
     - name: Compile proto files
       run: |
-        protoc --version
+        go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
         make compile-proto 
 
     - name: Generate CRD
